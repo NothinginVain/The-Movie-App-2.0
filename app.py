@@ -1,4 +1,6 @@
 from flask import Flask
+from data_manager import DataManager
+from models import db, Movie
 
 
 app = Flask(__name__)
