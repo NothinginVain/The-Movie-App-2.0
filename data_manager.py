@@ -1,4 +1,5 @@
 from models import db, User, Movie
+from flask import jsonify
 
 class DataManager():
     def create_user(self, name):
@@ -14,8 +15,14 @@ class DataManager():
 
 
     def add_movie(self, movie):
-        db.session.add(movie)
+        movie_name = movie.name
+        movie_check = Movie.query.get(movie_name)
+        if movie_check is None:
+            return jsonify({'Error':'Movie not found'})
+
+        db.session.add(movie_check)
         db.session.commit()
+        return jsonify({'Message':'Movie as been added successfully'})
 
 
     def update_movie(self, movie_id, new_title):
@@ -35,4 +42,5 @@ class DataManager():
             db.session.delete(select_movie)
             db.session.commit()
 
-        return select_movie
+
+        return f'The movie {select_movie.name} was successful deleted'
