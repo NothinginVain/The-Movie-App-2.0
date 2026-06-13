@@ -6,7 +6,7 @@ class DataManager():
         new_user = User(name=name)
         db.session.add(new_user)
         db.session.commit()
-
+        return True
 
     def get_users(self):
         return User.query.all()
@@ -23,7 +23,7 @@ class DataManager():
 
 
     def get_movie_by_name(self, movie_name):
-        return Movie.query.get(name=movie_name)
+        return Movie.query.filter_by(name=movie_name).first()
 
 
     def movie_exists_for_user(self, user_id, movie_name):
@@ -37,6 +37,7 @@ class DataManager():
 
         db.session.add(movie)
         db.session.commit()
+        return True
         # return jsonify({'Message':'Movie as been added successfully'})
 
     def add_movie_relation(self, user_id):
@@ -44,6 +45,7 @@ class DataManager():
         user_movies_raw = UserMovies(user_id=user_id, movie_id=movie_id)
         db.session.add(user_movies_raw)
         db.session.commit()
+
 
 
     def update_movie(self, movie_id, new_title):
@@ -62,6 +64,8 @@ class DataManager():
         if select_movie:
             db.session.delete(select_movie)
             db.session.commit()
-
+            return True
+        else:
+            return False
 
         # return f'The movie {select_movie.name} was successful deleted'
