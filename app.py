@@ -30,15 +30,18 @@ def create_user():
 
     if not new_user:
         flash('User name cannot be empty')
+        return redirect(url_for('index'))
 
     existing_user = data_manager.get_user_by_name(new_user)
     if existing_user:
         flash('User already exists')
         return redirect(url_for('index'))
 
-    data_manager.create_user(new_user)
+    save_data = data_manager.create_user(new_user)
 
-    flash('User created with Success')
+    if save_data is True:
+        flash('User created with Success')
+
     return redirect(url_for('index'))
 
 
@@ -56,9 +59,10 @@ def user_movies(user_id):
 @app.route('/users/<int:user_id>/movies', methods=['POST'])
 def add_movie(user_id):
     check_movie = request.form.get('new_movie','').strip()
+
     if not check_movie:
         flash('Movie title cannot be empty')
-        return redirect('Movie title cannot be empty')
+        return redirect(url_for('user_movies', user_id=user_id))
 
     existing_movie = data_manager.movie_exists_for_user(user_id,check_movie)
 
@@ -89,9 +93,11 @@ def add_movie(user_id):
     if poster == "N/A":
         poster = DEFAULT_IMG_POSTER
     new_movie = Movie(name=title, director=director, year=year, poster_url=poster, user_id=user_id)
-    data_manager.add_movie(new_movie)
-    # check if the movie that i creat already exist in the database
-    flash('Movie add with Success')
+    save_data = data_manager.add_movie(new_movie)
+
+    if save_data is True:
+        flash('Movie add with Success')
+
     return redirect(url_for('user_movies', user_id=user_id))
 
 
@@ -106,6 +112,7 @@ def update_movie(user_id, movie_id):
 
     if movie is None:
         flash('Movie not found')
+        return redirect(url_for('user_movies', user_id=user_id))
 
     flash('Movie updated with Success')
     return redirect(url_for('user_movies', user_id=user_id))
@@ -115,11 +122,22 @@ def update_movie(user_id, movie_id):
 def delete_movie(user_id, movie_id):
     deleted = data_manager.delete_movie(movie_id)
 
-    if not deleted:
+    if deleted is False:
         flash('Movie not found')
+        return redirect(url_for('user_movies', user_id=user_id))
+    else:
+        flash(f'The Movie was deleted with Success')
+        return redirect(url_for('user_movies', user_id=user_id))
 
-    flash(f'The Movie was deleted with Success')
-    return redirect(url_for('user_movies', user_id=user_id))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
