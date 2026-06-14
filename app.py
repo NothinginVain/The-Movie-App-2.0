@@ -7,6 +7,13 @@ from movie_api import fetch_movie_data
 
 app = Flask(__name__)
 
+"""
+Flask application for managing users and their movie collections.
+
+Provides functionality to create users, add movies from an external API,
+update movie information, and delete movies.
+"""
+
 DEFAULT_IMG_POSTER = 'https://placehold.co/380x562?text=No+Poster'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
@@ -20,12 +27,20 @@ data_manager = DataManager() # Create an object of your DataManager class
 
 @app.route('/')
 def index():
+    """
+        Display the home page with all registered users.
+    """
     users = data_manager.get_users()
     return render_template('index.html', users=users)
 
 
 @app.route('/users', methods=['POST'])
 def create_user():
+    """
+    Create a new user.
+
+    Validates the submitted username and prevents duplicates.
+    """
     new_user = request.form.get('add_user', '').strip()
 
     if not new_user:
@@ -47,6 +62,12 @@ def create_user():
 
 @app.route('/users/<int:user_id>/movies', methods=['GET'])
 def user_movies(user_id):
+    """
+    Display all movies belonging to a user.
+
+    Args:
+        user_id (int): ID of the user.
+    """
     movies = data_manager.get_movies(user_id)
     user = data_manager.get_user(user_id)
     if user is None:
@@ -58,6 +79,15 @@ def user_movies(user_id):
 
 @app.route('/users/<int:user_id>/movies', methods=['POST'])
 def add_movie(user_id):
+    """
+    Add a movie to a user's collection.
+
+    Retrieves movie details from the external API and
+    stores them in the database.
+
+    Args:
+        user_id (int): ID of the user.
+    """
     check_movie = request.form.get('new_movie','').strip()
 
     if not check_movie:
@@ -92,6 +122,7 @@ def add_movie(user_id):
     poster = movie_data.get('Poster', 'N/A')
     if poster == "N/A":
         poster = DEFAULT_IMG_POSTER
+
     new_movie = Movie(name=title, director=director, year=year, poster_url=poster, user_id=user_id)
     save_data = data_manager.add_movie(new_movie)
 
@@ -103,6 +134,13 @@ def add_movie(user_id):
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])
 def update_movie(user_id, movie_id):
+    """
+     Update a movie's title.
+
+     Args:
+         user_id (int): ID of the user.
+         movie_id (int): ID of the movie.
+     """
     new_title = request.form.get('new_title', '').strip()
     if not new_title:
         flash('Movie title can not be empty')
@@ -120,6 +158,13 @@ def update_movie(user_id, movie_id):
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/delete', methods=['POST'])
 def delete_movie(user_id, movie_id):
+    """
+        Delete a movie from a user's collection.
+
+        Args:
+            user_id (int): ID of the user.
+            movie_id (int): ID of the movie.
+    """
     deleted = data_manager.delete_movie(movie_id)
 
     if deleted is False:
@@ -132,11 +177,23 @@ def delete_movie(user_id, movie_id):
 
 @app.errorhandler(404)
 def page_not_found(e):
+    """
+      Render the custom 404 error page.
+
+      Args:
+          e: Exception raised by Flask.
+    """
     return render_template('404.html'), 404
 
 
 @app.errorhandler(500)
 def internal_server_error(e):
+    """
+    Render the custom 500 error page.
+
+    Args:
+        e: Exception raised by Flask.
+    """
     return render_template('500.html'), 500
 
 
