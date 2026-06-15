@@ -18,12 +18,14 @@ DEFAULT_IMG_POSTER = 'https://placehold.co/380x562?text=No+Poster'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data/movies.db')}"
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    f"sqlite:///{os.path.join(basedir, 'data/movies.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)  # Link the database and the app. This is the reason you need to import db from models
 
 data_manager = DataManager() # Create an object of your DataManager class
+
 
 @app.route('/')
 def index():
@@ -74,7 +76,8 @@ def user_movies(user_id):
         flash('User not found')
         return redirect(url_for('index'))
 
-    return render_template('movies.html', movies=movies, user=user)
+    return render_template('movies.html',
+                           movies=movies, user=user)
 
 
 @app.route('/users/<int:user_id>/movies', methods=['POST'])
@@ -103,7 +106,8 @@ def add_movie(user_id):
     #     data_manager.add_movie_relation()
     #     going to add user id, and movie id to the user_movie table,
     #if not available in database need to do 3 actions,
-    #n1- fetch the movie info from api, n2-add the movies to movies table, n3-add movie id and user id to the third table
+    #n1- fetch the movie info from api, n2-add the movies to movies table,
+    # n3-add movie id and user id to the third table
 
     movie_data = fetch_movie_data(check_movie)
 
@@ -123,7 +127,8 @@ def add_movie(user_id):
     if poster == "N/A":
         poster = DEFAULT_IMG_POSTER
 
-    new_movie = Movie(name=title, director=director, year=year, poster_url=poster, user_id=user_id)
+    new_movie = Movie(name=title, director=director,
+                      year=year, poster_url=poster, user_id=user_id)
     save_data = data_manager.add_movie(new_movie)
 
     if save_data is True:
@@ -132,7 +137,8 @@ def add_movie(user_id):
     return redirect(url_for('user_movies', user_id=user_id))
 
 
-@app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])
+@app.route('/users/<int:user_id>/movies/<int:movie_id>/update',
+           methods=['POST'])
 def update_movie(user_id, movie_id):
     """
      Update a movie's title.
@@ -156,7 +162,8 @@ def update_movie(user_id, movie_id):
     return redirect(url_for('user_movies', user_id=user_id))
 
 
-@app.route('/users/<int:user_id>/movies/<int:movie_id>/delete', methods=['POST'])
+@app.route('/users/<int:user_id>/movies/<int:movie_id>/delete',
+           methods=['POST'])
 def delete_movie(user_id, movie_id):
     """
         Delete a movie from a user's collection.

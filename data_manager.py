@@ -9,6 +9,7 @@ class DataManager:
     and deleting records.
     """
 
+
     def create_user(self, name):
         """
         Create and save a new user.
@@ -24,6 +25,7 @@ class DataManager:
         db.session.commit()
         return True
 
+
     def get_users(self):
         """
         Retrieve all users.
@@ -32,6 +34,7 @@ class DataManager:
             list: List of User objects.
         """
         return User.query.all()
+
 
     def get_user(self, user_id):
         """
@@ -111,11 +114,6 @@ class DataManager:
         db.session.commit()
         return True
 
-    # def add_movie_relation(self, user_id):
-    #     movie_id = Movie.query.get(user_id=user_id)
-    #     user_movies_raw = UserMovies(user_id=user_id, movie_id=movie_id)
-    #     db.session.add(user_movies_raw)
-    #     db.session.commit()
 
     def update_movie(self, movie_id, new_title):
         """
@@ -136,6 +134,7 @@ class DataManager:
 
         return select_movie
 
+
     def delete_movie(self, movie_id):
         """
         Delete a movie from the database.
@@ -154,5 +153,3 @@ class DataManager:
             return True
         else:
             return False
-
-        # return f'The movie {select_movie.name} was successful deleted'
